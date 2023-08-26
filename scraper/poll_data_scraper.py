@@ -35,11 +35,20 @@ class PollDataScraper:
         table = self.soup.find("table")
 
         with open(csv_filename, "w", newline="", encoding="utf-8") as csv_file:
+            # Find the table header
+            thead = table.find("thead")
+
+            # Find all th elements within the thead
+            column_names = [th.get_text(strip=True) for th in thead.find_all("th")]
+
+            # Remove the first three columns (Date, Pollster, Sample)
+            column_names = column_names[3:]
+            
             csv_writer = csv.writer(csv_file, delimiter=",")
             csv_writer.writerow(
-                ["Date", "Pollster", "Sample", "Bulstrode", "Lydgate", "Vincy", "Casaubon", "Chettam", "Others"]
+                ["date", "pollster", "n"] + column_names
             )
-
+            
             rows = table.find("tbody").find_all("tr")
 
             for row in rows:
