@@ -62,6 +62,10 @@ class TestPollDataScraper(unittest.TestCase):
     def test_clean_cell_percentage(self):
         cleaned_text = self.scraper.clean_cell("67.6%")
         self.assertAlmostEqual(float(cleaned_text), 0.6759, places=3)
+    
+    def test_clean_cell_number(self):
+        cleaned_text = self.scraper.clean_cell("1,234*")
+        self.assertEqual(cleaned_text, 1234)
 
     # Add more test cases for clean_cell based on your data variations
 
