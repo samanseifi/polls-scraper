@@ -15,6 +15,18 @@ class PollDataScraper:
             self.soup = BeautifulSoup(response.content, "html.parser")
         except requests.exceptions.RequestException as e:
             raise RuntimeError(f"Error fetching the page: {e}")
+        
+    def clean_cell(self, cell_text):
+        # Remove the * and ** if they appear at the end of the string
+        # cleaned_text = re.sub(r'\*+$', '', cell_text)
+    
+        cleaned_text = cell_text
+        # Convert percentage to decimal
+        if "%" in cell_text:
+            cleaned_text = float(cleaned_text.strip('%')) / 100
+    
+        return cleaned_text
+
 
     def scrape_to_csv(self, csv_filename):
         if self.soup is None:
@@ -32,7 +44,7 @@ class PollDataScraper:
 
             for row in rows:
                 cells = row.find_all("td")
-                row_data = [cell.get_text(strip=True) for cell in cells]
+                row_data = [self.clean_cell(cell.get_text(strip=True)) for cell in cells]
                 csv_writer.writerow(row_data)
     
     def csv_to_dataframe(self, csv_filename):
