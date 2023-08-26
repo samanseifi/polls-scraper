@@ -27,6 +27,22 @@ class PollDataScraper:
     
         return cleaned_text
 
+    def extract_column_order(self):
+        if self.soup is None:
+            raise RuntimeError("Page content not fetched. Call fetch_page() first.")
+
+        table = self.soup.find("table")
+
+        # Find the table header
+        thead = table.find("thead")
+
+        # Find all th elements within the thead
+        column_names = [th.get_text(strip=True) for th in thead.find_all("th")]
+
+        # Remove the first three columns (Date, Pollster, Sample)
+        column_names = column_names[3:]
+
+        return column_names
 
     def scrape_to_csv(self, csv_filename):
         if self.soup is None:
@@ -34,19 +50,10 @@ class PollDataScraper:
 
         table = self.soup.find("table")
 
-        with open(csv_filename, "w", newline="", encoding="utf-8") as csv_file:
-            # Find the table header
-            thead = table.find("thead")
-
-            # Find all th elements within the thead
-            column_names = [th.get_text(strip=True) for th in thead.find_all("th")]
-
-            # Remove the first three columns (Date, Pollster, Sample)
-            column_names = column_names[3:]
-            
+        with open(csv_filename, "w", newline="", encoding="utf-8") as csv_file:        
             csv_writer = csv.writer(csv_file, delimiter=",")
             csv_writer.writerow(
-                ["date", "pollster", "n"] + column_names
+                ["date", "pollster", "n"] + self.extract_column_order()
             )
             
             rows = table.find("tbody").find_all("tr")
