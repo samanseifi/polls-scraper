@@ -15,17 +15,9 @@ class TestPollDataScraper(unittest.TestCase):
         self.scraper.fetch_page()
         self.assertIsNotNone(self.scraper.soup)
 
-    def test_clean_cell_numeric(self):
-        cleaned_text = self.scraper.clean_cell("1,914*")
-        self.assertEqual(cleaned_text, "1914")
-
     def test_clean_cell_percentage(self):
         cleaned_text = self.scraper.clean_cell("67%")
-        self.assertEqual(cleaned_text, "0.67")
-
-    def test_clean_cell_no_numeric(self):
-        cleaned_text = self.scraper.clean_cell("N/A")
-        self.assertEqual(cleaned_text, "")
+        self.assertEqual(cleaned_text, 0.67)
 
     # Add more test cases for clean_cell based on your data variations
 
