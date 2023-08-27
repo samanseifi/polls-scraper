@@ -20,12 +20,17 @@ class PollDataScraper:
     def clean_cell(self, cell_text):
         # Remove the * and ** if they appear at the end of the string
         cleaned_text = re.sub(r'[*+,]+', '', cell_text)
+        
+        # Convert the cleaned text to float if it's a number
         cleaned_text = float(cleaned_text) if re.match(r'^\d+(\.\d+)?$', cleaned_text) else cell_text
-
+        
+        # This removes entries with only "**" 
+        cleaned_text = "" if cell_text == "**" else cleaned_text        
+        
         # Convert percentage to decimal
         if "%" in cell_text:
             cleaned_text = float(cleaned_text.strip('%')) / 100
-    
+        
         return cleaned_text
 
     def extract_column_order(self):
