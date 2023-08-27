@@ -57,4 +57,22 @@ class PollDataProcessor:
         plt.tight_layout()
         plt.show()
 
+    def plot_moving_average_trends(self, candidates, window_size):
+        colors = ['blue', 'green', 'red', 'purple', 'brown', 'orange']  # Choose your desired colors
+
+        plt.figure(figsize=(10, 6))
+        for candidate in candidates:
+            candidate_data = self.dataframe[['date', candidate]].dropna()
+            candidate_data = candidate_data.set_index('date')
+            rolling_average = self.calculate_moving_average(candidate_data[candidate], window_size=window_size)
+            self.plot_polling_data(candidate_data.index, candidate_data[candidate], rolling_average, None, candidate, 'Moving Average', color=colors[candidates.index(candidate)])
+
+        plt.xlabel('Date')
+        plt.ylabel('Percentage')
+        plt.title(str(window_size)+'-day Moving Average Trends for Candidates')
+        plt.legend()
+        plt.grid(False)
+        plt.xticks(rotation=45)
+        plt.tight_layout()
+        plt.show()
 

@@ -28,3 +28,4 @@ if __name__ == "__main__":
 
     # Call the methods
     processor.plot_gaussian_process_trends(candidates_to_analyze)
+    processor.plot_moving_average_trends(candidates_to_analyze, window_size=10)
