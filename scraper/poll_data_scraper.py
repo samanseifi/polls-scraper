@@ -22,13 +22,6 @@ class PollDataScraper:
         # Remove the * and ** if they appear at the end of the string
         cleaned_text = re.sub(r'[*+,]+', '', cell_text)
 
-        try:
-            # Convert the cleaned text to float if it's a number
-            if re.match(r'^\d+(\.\d+)?$', cleaned_text):
-                cleaned_text = str(float(cleaned_text))
-        except ValueError:
-            pass  # Handle the case where conversion to float fails
-
         # This removes entries with only "**"
         cleaned_text = "" if cleaned_text == "**" else cleaned_text
 
@@ -40,7 +33,6 @@ class PollDataScraper:
                 pass  # Handle the case where conversion to float fails
 
         return cleaned_text
-
 
     def extract_column_order(self) -> List[str]:
         if self.soup is None:
