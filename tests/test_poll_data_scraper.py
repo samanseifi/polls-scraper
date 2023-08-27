@@ -65,10 +65,10 @@ class TestPollDataScraper(unittest.TestCase):
     
     def test_clean_cell_number(self):
         cleaned_text = self.scraper.clean_cell("1,234*")
-        self.assertEqual(cleaned_text, 1234)
+        self.assertEqual(cleaned_text, "1234.0")
         
         cleaned_text = self.scraper.clean_cell("1,235**")
-        self.assertEqual(cleaned_text, 1235)
+        self.assertEqual(cleaned_text, "1235.0")
         
     def test_clean_cell_stars(self):
         cleaned_text = self.scraper.clean_cell("**")

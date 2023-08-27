@@ -3,9 +3,10 @@ from bs4 import BeautifulSoup
 import csv
 import pandas as pd
 import re
+from typing import List
 
 class PollDataScraper:
-    def __init__(self, url):
+    def __init__(self, url: str):
         self.url = url
         self.soup = None
 
@@ -17,23 +18,31 @@ class PollDataScraper:
         except requests.exceptions.RequestException as e:
             raise RuntimeError(f"Error fetching the page: {e}")
         
-    def clean_cell(self, cell_text):
+    def clean_cell(self, cell_text: str) -> str:
         # Remove the * and ** if they appear at the end of the string
         cleaned_text = re.sub(r'[*+,]+', '', cell_text)
-        
-        # Convert the cleaned text to float if it's a number
-        cleaned_text = float(cleaned_text) if re.match(r'^\d+(\.\d+)?$', cleaned_text) else cell_text
-        
-        # This removes entries with only "**" 
-        cleaned_text = "" if cell_text == "**" else cleaned_text        
-        
+
+        try:
+            # Convert the cleaned text to float if it's a number
+            if re.match(r'^\d+(\.\d+)?$', cleaned_text):
+                cleaned_text = str(float(cleaned_text))
+        except ValueError:
+            pass  # Handle the case where conversion to float fails
+
+        # This removes entries with only "**"
+        cleaned_text = "" if cleaned_text == "**" else cleaned_text
+
         # Convert percentage to decimal
         if "%" in cell_text:
-            cleaned_text = float(cleaned_text.strip('%')) / 100
-        
+            try:
+                cleaned_text = str(float(cleaned_text.strip('%')) / 100)
+            except ValueError:
+                pass  # Handle the case where conversion to float fails
+
         return cleaned_text
 
-    def extract_column_order(self):
+
+    def extract_column_order(self) -> List[str]:
         if self.soup is None:
             raise RuntimeError("Page content not fetched. Call fetch_page() first.")
 
@@ -50,7 +59,7 @@ class PollDataScraper:
 
         return column_names
 
-    def scrape_to_csv(self, csv_filename):
+    def scrape_to_csv(self, csv_filename: str):
         if self.soup is None:
             raise RuntimeError("Page content not fetched. Call fetch_page() first.")
 
@@ -69,7 +78,7 @@ class PollDataScraper:
                 row_data = [self.clean_cell(cell.get_text(strip=True)) for cell in cells]
                 csv_writer.writerow(row_data)
     
-    def csv_to_dataframe(self, csv_filename):
+    def csv_to_dataframe(self, csv_filename: str) -> pd.DataFrame:
         try:
             df = pd.read_csv(csv_filename)
             return df
