@@ -65,10 +65,10 @@ class TestPollDataScraper(unittest.TestCase):
     
     def test_clean_cell_number(self):
         cleaned_text = self.scraper.clean_cell("1,234*")
-        self.assertEqual(cleaned_text, "1234.0")
+        self.assertEqual(cleaned_text, "1234")
         
         cleaned_text = self.scraper.clean_cell("1,235**")
-        self.assertEqual(cleaned_text, "1235.0")
+        self.assertEqual(cleaned_text, "1235")
         
     def test_clean_cell_stars(self):
         cleaned_text = self.scraper.clean_cell("**")
@@ -76,20 +76,31 @@ class TestPollDataScraper(unittest.TestCase):
 
     # Add more test cases for clean_cell based on your data variations
 
-    def test_csv_to_dataframe_successful(self):
-        df = self.scraper.csv_to_dataframe("tests/test_data.csv")
-        self.assertIsNotNone(df)
-
     def test_csv_to_dataframe_file_not_found(self):
         with self.assertRaises(RuntimeError):
-            self.scraper.csv_to_dataframe("nonexistent.csv")
+            self.scraper.scrape_to_dataframe_and_csv("nonexistent.csv")
 
     def test_csv_to_dataframe_empty_file(self):
         with open("empty.csv", "w") as f:
             f.write("")
 
         with self.assertRaises(RuntimeError):
-            self.scraper.csv_to_dataframe("tests/empty.csv")
+            self.scraper.scrape_to_dataframe_and_csv("tests/empty.csv")
+    
+    def test_scrape_to_dataframe_and_csv(self):
+        self.scraper.fetch_page()
+        df = self.scraper.scrape_to_dataframe_and_csv("tests/test_data.csv")
+        self.assertIsNotNone(df)
+        self.assertEqual(len(df.columns), 9) # testing number of columns
+        self.assertEqual(df.columns[0], "date")
+        self.assertEqual(df.columns[1], "pollster")
+        self.assertEqual(df.columns[2], "n")
+        self.assertTrue("Bulstrode" in df.columns)
+        self.assertTrue("Lydgate" in df.columns)
+        self.assertTrue("Vincy" in df.columns)
+        self.assertTrue("Casaubon" in df.columns)
+        self.assertTrue("Chettam" in df.columns)
+        self.assertTrue("Others" in df.columns)
 
     # Add more test cases for csv_to_dataframe based on different scenarios
 
