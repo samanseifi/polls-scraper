@@ -11,11 +11,7 @@ if __name__ == "__main__":
     scraper.fetch_page()
     df = scraper.scrape_to_dataframe_and_csv("data/poll_data.csv")
 
-
-    # Load the polling data from the DataFrame
-    # Replace 'data.csv' with the actual path to your CSV file
-    df = pd.read_csv('data/poll_data.csv', parse_dates=['date'])
-
+    df['date'] = pd.to_datetime(df['date'])
 
     # Fill missing values with NaN
     df = df.replace('', float('nan'))
@@ -23,8 +19,8 @@ if __name__ == "__main__":
     # Create an instance of PollDataProcessor
     processor = PollDataProcessor(df)
 
-    # Candidates to analyze
-    candidates_to_analyze = ['Bulstrode', 'Lydgate', 'Vincy', 'Casaubon', 'Chettam',	'Others']
+    # Candidates to analyze if new candidates added it will be capturedd here
+    candidates_to_analyze = scraper.extract_column_candidates()
 
     # Call the methods
     processor.plot_gaussian_process_trends(candidates_to_analyze)

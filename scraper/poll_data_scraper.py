@@ -35,7 +35,7 @@ class PollDataScraper:
 
         return cleaned_text
 
-    def extract_column_order(self) -> List[str]:
+    def extract_column_candidates(self) -> List[str]:
         if self.soup is None:
             raise RuntimeError("Page content not fetched. Call fetch_page() first.")
 
@@ -70,7 +70,7 @@ class PollDataScraper:
         if table is None:
             raise ValueError("Table not found in the page content.")
         
-        column_headers = ["date", "pollster", "n"] + self.extract_column_order()
+        column_headers = ["date", "pollster", "n"] + self.extract_column_candidates()
         data = []
 
         tbody = table.find("tbody")
