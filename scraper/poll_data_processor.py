@@ -54,19 +54,26 @@ class PollDataProcessor:
             self.logger.error(f"An error occurred while predicting using Gaussian Process: {e}")  # Log the error
             raise e
 
-    def calculate_moving_average(self, data_series, window_size=7):
+    def calculate_moving_average(self, data_series, window_size):
         try:
-            return data_series.rolling(window=window_size, min_periods=1).mean()
+            data_series.set_index('date', inplace=True)          
+            daily_data = data_series.resample('D').mean() # Resample data to daily frequency, filling missing values with NaN
+            daily_data = daily_data.interpolate() # Interpolate missing values
+
+            # Calculate the moving average and standard deviation for daily data
+            moving_averages = daily_data.rolling(window=window_size, min_periods=1).mean()
+            std_deviations = daily_data.rolling(window=window_size, min_periods=1).std()
+            
+            return moving_averages, std_deviations
         except Exception as e:
             self.logger.error(f"An error occurred while calculating moving average: {e}")  # Log the error
             raise e
 
-    def plot_polling_data(self, x, y_actual, y_pred, sigma, label, method, color):
+    def plot_polling_data(self, x, y_actual, x_mapped, y_pred, sigma, label, method, color):
         plt.plot(x, y_actual, marker='o', linestyle='', alpha=0.3, label=label, color=color)
-        plt.plot(x, y_pred, linestyle='--', label=method, color=color)
-        if method == 'Gaussian Process':
-            plt.fill_between(x.flatten(), y_pred - 3*sigma, y_pred + 3*sigma, alpha=0.3, color=color)
-    
+        plt.plot(x_mapped, y_pred, linestyle='--', label=method, color=color)
+        plt.fill_between(x_mapped, y_pred - 3*sigma, y_pred + 3*sigma, alpha=0.1, color=color)
+        
     def plot_gaussian_process_trends(self, candidates):
         colors = ['blue', 'green', 'red', 'purple', 'brown', 'orange']  # Choose your desired colors
         processed_data = self.preprocess_data(candidates)
@@ -77,12 +84,12 @@ class PollDataProcessor:
                 x, y = processed_data[candidate]
                 model = self.fit_gaussian_process(x, y)
                 y_pred, sigma = self.predict_gaussian_process(model, x)
-                self.plot_polling_data(x, y, y_pred, sigma, candidate, method="Gaussian Process", color=colors[i])
+                self.plot_polling_data(x, y, x.flatten(), y_pred, sigma, candidate, method="Gaussian Process", color=colors[i])
 
             plt.xlabel('Date')
             plt.ylabel('Percentage')
             plt.title('Gaussian Process Regression Trends for Candidates')
-            plt.legend()
+            plt.legend(bbox_to_anchor=(1.05, 1), loc='upper left')
             plt.grid(False)
             plt.xticks(rotation=45)
             plt.tight_layout()
@@ -98,14 +105,13 @@ class PollDataProcessor:
         try:
             for candidate in candidates:
                 candidate_data = self.dataframe[['date', candidate]].dropna()
-                candidate_data = candidate_data.set_index('date')
-                rolling_average = self.calculate_moving_average(candidate_data[candidate], window_size=window_size)
-                self.plot_polling_data(candidate_data.index, candidate_data[candidate], rolling_average, None, candidate, 'Moving Average', color=colors[candidates.index(candidate)])
+                moving_averages, std_deviations = self.calculate_moving_average(candidate_data, window_size=window_size)
+                self.plot_polling_data(candidate_data.index, candidate_data[candidate], moving_averages.index, moving_averages.values.flatten(), std_deviations.values.flatten(), candidate, 'Moving Average', color=colors[candidates.index(candidate)])
 
             plt.xlabel('Date')
             plt.ylabel('Percentage')
             plt.title(str(window_size)+'-day Moving Average Trends for Candidates')
-            plt.legend()
+            plt.legend(bbox_to_anchor=(1.05, 1), loc='upper left')
             plt.grid(False)
             plt.xticks(rotation=45)
             plt.tight_layout()
@@ -113,4 +119,3 @@ class PollDataProcessor:
         except Exception as e:
             self.logger.error(f"An error occurred while plotting moving average trends: {e}")  # Log the error
             raise e
-
