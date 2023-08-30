@@ -33,3 +33,36 @@ The method intrinsically addresses outliers that were manually managed within th
 ![Figure_1](https://github.com/samanseifi/polls-scraper/assets/9206261/04f7c970-90f0-4e84-bcc4-60793694c2e1)
 
 However, a detailed study on hyper parameters is required to achieve a robust model.
+
+## Instruction to run the project
+
+Setting up a virtual environment for this Python project:
+
+
+Create a virtual environment using the following command:
+   
+   ```
+   python3 -m venv poll_scraper
+   ```
+
+This will create a directory named `poll_scraper` which will contain your virtual environment.
+   
+Activate the virtual environment on macOS and Linux:
+
+     ```
+     source poll_scraper/bin/activate
+     ```
+
+Once the virtual environment is activated, you can install your project's dependencies. You can install them using:
+   
+   ```
+   pip install -r requirements.txt
+   ```
+
+Now you can run your `main.py` script within the virtual environment. Any libraries you install using `pip` will be isolated to this environment.
+
+When you're done working on your project, you can deactivate the virtual environment using the command:
+   
+   ```
+   deactivate
+   ```
