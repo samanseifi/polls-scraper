@@ -2,7 +2,8 @@ import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 from sklearn.gaussian_process import GaussianProcessRegressor
-from sklearn.gaussian_process.kernels import RBF, ConstantKernel as C
+# from sklearn.gaussian_process.kernels import RBF, ConstantKernel as C
+from sklearn.gaussian_process.kernels import Matern, ConstantKernel as C
 import logging
 
 class PollDataProcessor:
@@ -38,7 +39,10 @@ class PollDataProcessor:
 
     def fit_gaussian_process(self, x, y):
         try:
-            kernel = C(1.0, (1e-3, 1e3)) * RBF(1.0, (1e-2, 1e2))
+
+            # Define the kernel (Matern kernel with nu=1.5)
+            kernel = C(1.0, (1e-3, 1e3)) * Matern(length_scale=1.0, length_scale_bounds=(1e-2, 1e2), nu=5.5)
+
             model = GaussianProcessRegressor(kernel=kernel, n_restarts_optimizer=10, alpha=0.001)
             model.fit(x, y)
             return model
@@ -56,10 +60,11 @@ class PollDataProcessor:
 
     def calculate_moving_average(self, data_series, window_size):
         try:
+
             data_series.set_index('date', inplace=True)          
             daily_data = data_series.resample('D').mean() # Resample data to daily frequency, filling missing values with NaN
             daily_data = daily_data.interpolate() # Interpolate missing values
-
+            
             # Calculate the moving average and standard deviation for daily data
             moving_averages = daily_data.rolling(window=window_size, min_periods=1).mean()
             std_deviations = daily_data.rolling(window=window_size, min_periods=1).std()
@@ -98,16 +103,26 @@ class PollDataProcessor:
             self.logger.error(f"An error occurred while plotting Gaussian Process trends: {e}")  # Log the error
             raise e
 
-    def plot_moving_average_trends(self, candidates, window_size):
+    def plot_moving_average_trends(self, candidates, window_size, save_to_csv=True):
         colors = ['blue', 'green', 'red', 'purple', 'brown', 'orange']  # Choose your desired colors
-
+        if save_to_csv:
+            moving_averages_df = pd.DataFrame()
+        
         plt.figure(figsize=(10, 6))
         try:
             for candidate in candidates:
                 candidate_data = self.dataframe[['date', candidate]].dropna()
                 moving_averages, std_deviations = self.calculate_moving_average(candidate_data, window_size=window_size)
                 self.plot_polling_data(candidate_data.index, candidate_data[candidate], moving_averages.index, moving_averages.values.flatten(), std_deviations.values.flatten(), candidate, 'Moving Average', color=colors[candidates.index(candidate)])
+                if save_to_csv:
+                    moving_averages_df[candidate] = moving_averages      
+            
+            if save_to_csv:
+                moving_averages_df.index = moving_averages.index  # Use the date index
 
+                # save moving averages to csv
+                moving_averages_df.to_csv('data/trend.csv', index=True) 
+            
             plt.xlabel('Date')
             plt.ylabel('Percentage')
             plt.title(str(window_size)+'-day Moving Average Trends for Candidates')

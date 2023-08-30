@@ -19,9 +19,9 @@ if __name__ == "__main__":
     # Create an instance of PollDataProcessor
     processor = PollDataProcessor(df)
 
-    # Candidates to analyze if new candidates added it will be capturedd here
+    # Candidates to analyze if new candidates added it will be captured here
     candidates_to_analyze = scraper.extract_column_candidates()
 
     # Call the methods
     processor.plot_gaussian_process_trends(candidates_to_analyze)
-    processor.plot_moving_average_trends(candidates_to_analyze, window_size=10)
+    processor.plot_moving_average_trends(candidates_to_analyze, window_size=10, save_to_csv=True)
