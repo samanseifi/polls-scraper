@@ -42,16 +42,17 @@ Setting up a virtual environment for this Python project:
 Create a virtual environment using the following command:
    
    ```
-   python3 -m venv poll_scraper
+   python3 -m venv polls_scraper
    ```
 
-This will create a directory named `poll_scraper` which will contain your virtual environment.
+This will create a directory named `polls_scraper` which will contain your virtual environment. Make sure the 
+`.gitignore` contains this directory to ignore tracking changes for version control.
    
 Activate the virtual environment on macOS and Linux:
 
-     ```
-     source poll_scraper/bin/activate
-     ```
+   ```
+   source polls_scraper/bin/activate
+   ```
 
 Once the virtual environment is activated, you can install your project's dependencies. You can install them using:
    
