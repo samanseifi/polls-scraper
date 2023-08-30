@@ -9,7 +9,7 @@ if __name__ == "__main__":
     url = "https://cdn-dev.economistdatateam.com/jobs/pds/code-test/index.html"
     scraper = PollDataScraper(url)
     scraper.fetch_page()
-    df = scraper.scrape_to_dataframe_and_csv("data/poll_data.csv")
+    df = scraper.scrape_to_dataframe_and_csv("data/poll.csv")
 
     df['date'] = pd.to_datetime(df['date'])
 

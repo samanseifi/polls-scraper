@@ -106,6 +106,7 @@ class PollDataProcessor:
             plt.grid(False)
             plt.xticks(rotation=45)
             plt.tight_layout()
+            plt.savefig('figures/gaussian_process.png')
             plt.show()
         except Exception as e:
             self.logger.error(f"An error occurred while plotting Gaussian Process trends: {e}")  # Log the error
@@ -138,6 +139,7 @@ class PollDataProcessor:
             plt.grid(False)
             plt.xticks(rotation=45)
             plt.tight_layout()
+            plt.savefig('figures/moving_average.png')
             plt.show()
         except Exception as e:
             self.logger.error(f"An error occurred while plotting moving average trends: {e}")  # Log the error
