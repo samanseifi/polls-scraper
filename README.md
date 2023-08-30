@@ -12,11 +12,13 @@ In this line, the window_size argument determines the number of days for the mov
 
 When `outliers=False`
 
-![MovAve_fig](https://github.com/samanseifi/polls-scraper/assets/9206261/967735f9-533c-4969-ac2e-bf4ea5b7a3cb)
+
+![Figure_1](https://github.com/samanseifi/polls-scraper/assets/9206261/4b2e9c1c-ef17-4937-964b-f60b42b40580)
 
 When `outliers=True`
 
-![MovinAve_fig_cliped](https://github.com/samanseifi/polls-scraper/assets/9206261/8abe53a3-3274-4f65-b34d-e2fe2a2ccaf2)
+![MovinAve_fig_cliped](https://github.com/samanseifi/polls-scraper/assets/9206261/f50d4c7a-dfd6-4cab-a55e-6f474f2192cf)
+
 
 In the provided examples, the first image demonstrates the trend without excluding outliers, while the second image showcases the trend after excluding them.
 
@@ -30,7 +32,7 @@ This command requires no additional external arguments and operates solely on th
 
 The method intrinsically addresses outliers that were manually managed within the **n-Day Moving Average model**. Gaussian Process (GP) fundamentally takes into account both the data's mean and its covariance structure. In scenarios where data points are sparse or subjected to noise, the GP fit allocates higher uncertainty, thus resulting in a wider standard deviation (Look at Chettam's trend). Conversely, in areas characterized by denser data or "pronounced patterns", the GP fit offers more accurate predictions with a narrower standard deviation.
 
-![Figure_1](https://github.com/samanseifi/polls-scraper/assets/9206261/04f7c970-90f0-4e84-bcc4-60793694c2e1)
+![Figure_1](https://github.com/samanseifi/polls-scraper/assets/9206261/d02334d4-ec3a-4e38-ad41-a260c2d499a8)
 
 However, a detailed study on hyper parameters is required to achieve a robust model.
 
