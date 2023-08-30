@@ -39,9 +39,9 @@ class PollDataProcessor:
 
     def fit_gaussian_process(self, x, y):
         try:
-
+            
             # Define the kernel (Matern kernel with nu=1.5)
-            kernel = C(1.0, (1e-3, 1e3)) * Matern(length_scale=1.0, length_scale_bounds=(1e-2, 1e2), nu=5.5)
+            kernel = C(1.0, (1e-3, 1e3)) * Matern(length_scale=1.0, length_scale_bounds=(1e-2, 1e5), nu=5.5)
 
             model = GaussianProcessRegressor(kernel=kernel, n_restarts_optimizer=10, alpha=0.001)
             model.fit(x, y)
@@ -58,17 +58,25 @@ class PollDataProcessor:
             self.logger.error(f"An error occurred while predicting using Gaussian Process: {e}")  # Log the error
             raise e
 
-    def calculate_moving_average(self, data_series, window_size):
+    def calculate_moving_average(self, data_series, window_size, outliers=True):
         try:
-
+            header = data_series.columns[1]
+            
             data_series.set_index('date', inplace=True)          
             daily_data = data_series.resample('D').mean() # Resample data to daily frequency, filling missing values with NaN
             daily_data = daily_data.interpolate() # Interpolate missing values
             
+            if outliers:
+                # Clip outliers
+                clipped_data = pd.DataFrame(index=daily_data.index)
+                clipped_data[header] = daily_data[header].clip(lower=daily_data[header].quantile(0.01), upper=daily_data[header].quantile(0.99))
+            else:  
+                clipped_data = daily_data
+                
             # Calculate the moving average and standard deviation for daily data
-            moving_averages = daily_data.rolling(window=window_size, min_periods=1).mean()
-            std_deviations = daily_data.rolling(window=window_size, min_periods=1).std()
-            
+            moving_averages = clipped_data.rolling(window=window_size, min_periods=1).mean()
+            std_deviations = clipped_data.rolling(window=window_size, min_periods=1).std()
+
             return moving_averages, std_deviations
         except Exception as e:
             self.logger.error(f"An error occurred while calculating moving average: {e}")  # Log the error
@@ -103,7 +111,7 @@ class PollDataProcessor:
             self.logger.error(f"An error occurred while plotting Gaussian Process trends: {e}")  # Log the error
             raise e
 
-    def plot_moving_average_trends(self, candidates, window_size, save_to_csv=True):
+    def plot_moving_average_trends(self, candidates, window_size, outliers=True, save_to_csv=True):
         colors = ['blue', 'green', 'red', 'purple', 'brown', 'orange']  # Choose your desired colors
         if save_to_csv:
             moving_averages_df = pd.DataFrame()
@@ -112,7 +120,7 @@ class PollDataProcessor:
         try:
             for candidate in candidates:
                 candidate_data = self.dataframe[['date', candidate]].dropna()
-                moving_averages, std_deviations = self.calculate_moving_average(candidate_data, window_size=window_size)
+                moving_averages, std_deviations = self.calculate_moving_average(candidate_data, window_size=window_size, outliers=outliers)
                 self.plot_polling_data(candidate_data.index, candidate_data[candidate], moving_averages.index, moving_averages.values.flatten(), std_deviations.values.flatten(), candidate, 'Moving Average', color=colors[candidates.index(candidate)])
                 if save_to_csv:
                     moving_averages_df[candidate] = moving_averages      

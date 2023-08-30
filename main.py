@@ -23,5 +23,8 @@ if __name__ == "__main__":
     candidates_to_analyze = scraper.extract_column_candidates()
 
     # Call the methods
+    # 1) Moving Averages
+    processor.plot_moving_average_trends(candidates_to_analyze, window_size=10, outliers=True, save_to_csv=True)
+
+    # 2) Gaussian Process (Experimental)
     processor.plot_gaussian_process_trends(candidates_to_analyze)
-    processor.plot_moving_average_trends(candidates_to_analyze, window_size=10, save_to_csv=True)
