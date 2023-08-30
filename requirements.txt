@@ -1,4 +1,7 @@
-numpy => 1.23.5
-sklearn => 1.2.1
-matplotlib => 3.7.0
-pandas => 1.5.3
+# List of required packages
+numpy
+scikit-learn ~= 1.2.1
+matplotlib
+pandas ~= 1.5.3
+requests
+bs4
