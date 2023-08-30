@@ -64,6 +64,10 @@ Once the virtual environment is activated, you can install your project's depend
 
 Now you can run your `main.py` script within the virtual environment. Any libraries you install using `pip` will be isolated to this environment.
 
+   ```
+   python main.py
+   ```
+
 When you're done working on your project, you can deactivate the virtual environment using the command:
    
    ```
